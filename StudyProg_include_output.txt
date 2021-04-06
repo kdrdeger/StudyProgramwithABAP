@@ -1,0 +1,24 @@
+INCLUDE ZKADIR_ETUTPROGRAMI_O01.
+
+MODULE status_0201 OUTPUT.
+  DATA: gv_kayityapan TYPE char21,
+        lv_username   TYPE bapibname-bapibname,
+        ls_adress     TYPE bapiaddr3,
+        lt_return     TYPE bapiret2 OCCURS 0 WITH HEADER LINE.
+  lv_username = sy-uname.
+
+
+
+  CALL FUNCTION 'BAPI_USER_GET_DETAIL'
+    EXPORTING
+      username = lv_username
+    IMPORTING
+      address  = ls_adress
+    TABLES
+      return   = lt_return[].
+
+  gv_kayityapan = ls_adress-fullname.
+
+  SET PF-STATUS 'STATUS_0201'.
+  SET TITLEBAR 'TITLE_201'.
+ENDMODULE.
