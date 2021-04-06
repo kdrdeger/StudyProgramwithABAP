@@ -1,0 +1,145 @@
+INCLUDE ZKADIR_ETUTPROGRAMI_I01.
+
+MODULE user_command_0201 INPUT.
+  DATA ok_code TYPE sy-ucomm.
+  ok_code = sy-ucomm.
+  CASE ok_code.
+    WHEN 'BACK'.
+      LEAVE PROGRAM.
+    WHEN 'CANCEL'.
+      LEAVE PROGRAM.
+    WHEN 'EXIT'.
+      LEAVE PROGRAM.
+    WHEN 'KYT'.
+      wa_etut-zkd_ogrnu   = zkd_etut01-zkd_ogrnu.
+      wa_etut-zkd_ogreid  = zkd_etut01-zkd_ogreid.
+      wa_etut-zkd_ogrteid = zkd_etut01-zkd_ogrteid.
+      wa_etut-zkd_tarih01 = zkd_etut01-zkd_tarih01.
+      wa_etut-zkd_time    = zkd_etut01-zkd_time.
+      wa_etut-zkd_dersler = zkd_etut01-zkd_dersler.
+
+      APPEND WA_etut TO gt_etutler.
+      MODIFY zkd_etut01 FROM TABLE gt_etutler.
+      MESSAGE 'KAYIT BAŞARILI.' TYPE 'I'.
+      PERFORM select_data.
+      PERFORM display_alv.
+
+    WHEN 'KONTEJYAN'.
+      IF zkd_etut01-zkd_ogrnu GE 10020.
+        MESSAGE 'KONTEJYAN DOLU.' TYPE 'I'.
+      ELSEIF zkd_etut01-zkd_ogrnu LT 10010.
+        MESSAGE 'KONTEJYAN VAR.' TYPE 'I'.
+      ELSE.
+        MESSAGE 'DERS AÇILABİLİR.' TYPE 'I'.
+        PERFORM select_data.
+        PERFORM display_alv.
+      ENDIF.
+
+    WHEN 'MAIL'.
+
+      CALL FUNCTION 'SO_NEW_DOCUMENT_ATT_SEND_API1'
+        EXPORTING
+          document_data              = w_DOC_DATA
+        TABLES
+          packing_list               = w_object_content
+          receivers                  = t_receivers
+        EXCEPTIONS
+          too_many_receivers         = 1
+          document_not_sent          = 2
+          document_type_not_exist    = 3
+          operation_no_authorization = 4
+          parameter_error            = 5
+          x_error                    = 6
+          enqueue_error              = 7
+          OTHERS                     = 8.
+      IF sy-subrc <> 0.
+* Implement suitable error handling here
+      ENDIF.
+
+
+    WHEN 'KAYITLAR'.
+      PERFORM select_data.
+      PERFORM display_alv.
+
+    WHEN 'KAYDET'.
+
+      wa_etut-zkd_ogrnu   = zkd_etut01-zkd_ogrnu.
+      wa_etut-zkd_ogreid  = zkd_etut01-zkd_ogreid.
+      wa_etut-zkd_ogrteid = zkd_etut01-zkd_ogrteid.
+      wa_etut-zkd_tarih01 = zkd_etut01-zkd_tarih01.
+      wa_etut-zkd_time    = zkd_etut01-zkd_time.
+      wa_etut-zkd_dersler = zkd_etut01-zkd_dersler.
+
+      APPEND WA_etut TO gt_etutler.
+      MODIFY zkd_etut01 FROM TABLE gt_etutler.
+      MESSAGE 'KAYIT BAŞARILI.' TYPE 'I'.
+      PERFORM select_data.
+      PERFORM display_alv.
+
+    WHEN 'CIKTI'.
+       DATA: lv_fmname type RS38L_FNAM.
+
+
+      CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+        EXPORTING
+          formname = 'ZKD_SF_ETUT01'
+
+        IMPORTING
+          fm_name  =  lv_fmname
+         EXCEPTIONS
+         NO_FORM  = 1
+         NO_FUNCTION_MODULE       = 2
+         OTHERS   = 3
+        .
+      IF sy-subrc <> 0.
+* Implement suitable error handling here
+      ENDIF.
+
+
+      CALL FUNCTION lv_fmname
+        EXPORTING
+
+          gv_ogrno         = zkd_etut01-zkd_ogrnu
+          gv_ogrenciadi    = zkd_etut01-zkd_ogreid
+          gv_ogretmenadi   = zkd_etut01-zkd_ogrteid
+          gv_derssaati     = zkd_etut01-zkd_tarih01
+          gv_dersler       = zkd_etut01-zkd_dersler
+
+        EXCEPTIONS
+          formatting_error = 1
+          internal_error   = 2
+          send_error       = 3
+          user_canceled    = 4
+          OTHERS           = 5.
+      IF sy-subrc <> 0.
+* Implement suitable error handling here
+      ENDIF.
+
+      WHEN 'SL'.
+
+      WA_SIL-zkd_ogrnu   = zkd_etut01-zkd_ogrnu.
+      WA_SIL-zkd_ogreid  = zkd_etut01-zkd_ogreid.
+      WA_SIL-zkd_ogrteid = zkd_etut01-zkd_ogrteid.
+      WA_SIL-zkd_tarih01 = zkd_etut01-zkd_tarih01.
+      WA_SIL-zkd_time    = zkd_etut01-zkd_time.
+      WA_SIL-zkd_dersler = zkd_etut01-zkd_dersler.
+
+      APPEND WA_SIL TO GT_SILME.
+      DELETE zkd_etut01 FROM TABLE GT_SILME.
+      MESSAGE 'Silme İşlemi Başarılı.' TYPE 'I'.
+      PERFORM select_data.
+      PERFORM display_alv.
+
+
+
+
+
+
+
+    WHEN 'CIK'.
+      LEAVE PROGRAM.
+
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDMODULE.
