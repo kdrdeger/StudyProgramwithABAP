@@ -1,0 +1,49 @@
+INCLUDE ZKADIR_ETUTPROGRAMI_TOP.
+-------------------------------
+tables:zkd_etut01.
+TYPE-POOLS: SLİS.
+
+DATA:ZKD_OGRNU(5) TYPE N.
+DATA:ZKD_OGREID(35) TYPE C.
+DATA:ZKD_OGRTEID(35) TYPE C.
+DATA:ZKD_TARIH01(8) TYPE N.
+DATA:ZKD_TIME(5) TYPE C.
+DATA:ZKD_DERSLER(20) TYPE C.
+
+
+DATA: GT_ETUTLER LIKE STANDARD TABLE OF ZKD_ETUT01.
+DATA WA_ETUT LIKE LINE OF GT_ETUTLER.
+DATA:gt_fieldcat type slis_t_fieldcat_alv WITH HEADER LINE.
+
+CONSTANTS: GC_STRUCTURE TYPE dd02l-tabname VALUE 'ZKD_ETUT01'.
+*** Silme İşlemi internal table ve structure tanımlaması.
+
+DATA: GT_SILME LIKE STANDARD TABLE OF ZKD_ETUT01.
+DATA WA_SIL LIKE LINE OF GT_SILME.
+
+" SO_NEW_DOCUMENT_SEND_API! ile ilgili parametreler.
+
+data:w_object_id like soodk,
+     w_sonv_flag like sonv-flag.
+DATA:t_receivers like somlreci1 occurs 1 WITH HEADER LINE.
+DATA:w_DOC_DATA like SODOCCHGI1 occurs 0 WITH HEADER LINE.
+DATA: w_object_content like solisti1 occurs 1 WITH HEADER LINE.
+
+
+data: w_date(10).
+clear t_receivers.
+t_receivers-receiver = 'kadirdegr1997@gmail.com'.
+t_receivers-rec_type = 'U'. " U ile email olarak gider A ile kullanırsak sap üzerinden!.
+append t_receivers.
+
+
+w_DOC_DATA-obj_descr = 'change expiry date'.
+
+CONCATENATE 'ZKD_OGRNU' 'ZKD_OGREID' into w_object_content
+SEPARATED BY space.
+APPEND w_object_content.
+
+write sy-datum to w_date DD/MM/YYYY.
+CONCATENATE 'Change expiry date to' w_date
+into w_object_content SEPARATED BY ' '.
+append w_object_content.
