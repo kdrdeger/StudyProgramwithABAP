@@ -1,0 +1,47 @@
+INCLUDE ZKADIR_ETUTPROGRAMI_F01.
+
+FORM select_data.
+  SELECT * FROM zkd_etut01 INTO CORRESPONDING FIELDS OF TABLE gt_etutler.
+ENDFORM.
+
+*** ALV ÇIKTISI İÇİN GEREKLİ İŞLEMLER.
+form display_alv.
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+
+   I_STRUCTURE_NAME                  = gc_structure
+
+   IT_FIELDCAT                       = gt_fieldcat[]
+
+  TABLES
+    t_outtab                          = gt_etutler[]
+ EXCEPTIONS
+   PROGRAM_ERROR                     = 1
+   OTHERS                            = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+ENDFORM.
+
+
+form f_print USING is_kayit LIKE zkd_etut01.
+
+CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
+ EXPORTING
+   I_PROGRAM_NAME               = sy-repid
+   I_INTERNAL_TABNAME           = 'gt_etutler'
+   I_STRUCTURE_NAME             = 'zkd_etut01'
+
+  CHANGING
+    ct_fieldcat                  =  gt_fieldcat[]
+ EXCEPTIONS
+   INCONSISTENT_INTERFACE       = 1
+   PROGRAM_ERROR                = 2
+   OTHERS                       = 3
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+ENDFORM.
